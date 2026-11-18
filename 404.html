@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KHSX – Điều độ sản xuất | Kangaroo</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #fff; }
+  iframe { border: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<iframe id="app" title="KHSX – Điều độ sản xuất" allow="clipboard-read; clipboard-write; fullscreen"></iframe>
+<script>
+  /* Link /exec của bản triển khai Apps Script (đổi khi tạo bản triển khai mới) */
+  var EXEC = 'https://script.google.com/macros/s/AKfycbyEIsgtFO14tH2mz-aMDf1HtU_fSlNBwHXAXEgsbDo68VPKSOhjaw3AEc6ncsdTwQZH/exec';
+  /* Đường dẫn hiện tại, ví dụ /kh-ro -> "kh-ro"; truyền vào app để mở đúng màn */
+  var path = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, '').replace(/\.html$/, '');
+  if (path === 'index' || path === '404') path = '';
+  document.getElementById('app').src = EXEC + '?host=' + encodeURIComponent(location.origin) + (path ? '#' + encodeURIComponent(path) : '');
+  /* App báo đã chuyển màn -> đổi địa chỉ và tiêu đề tab (chỉ nhận tin từ máy chủ Google) */
+  window.addEventListener('message', function (e) {
+    var ok = false;
+    try { ok = /\.googleusercontent\.com$/.test(new URL(e.origin).hostname); } catch (x) {}
+    var d = e.data;
+    if (!ok || !d || d.khsx !== 'nav' || typeof d.path !== 'string') return;
+    if (!/^\/[a-z0-9\-]*$/.test(d.path)) return;
+    if (location.pathname !== d.path) history.replaceState(null, '', d.path);
+    if (typeof d.title === 'string') document.title = d.title.slice(0, 80);
+  });
+</script>
+</body>
+</html>
