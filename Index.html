@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KHSX – Điều độ sản xuất | Kangaroo</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #fff; }
+  iframe { border: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<iframe id="app" title="KHSX – Điều độ sản xuất" allow="clipboard-read; clipboard-write; fullscreen"></iframe>
+<script>
+  /* Link /exec của bản triển khai Apps Script (đổi khi tạo bản triển khai mới) */
+  var EXEC = 'https://script.google.com/macros/s/AKfycbyEIsgtFO14tH2mz-aMDf1HtU_fSlNBwHXAXEgsbDo68VPKSOhjaw3AEc6ncsdTwQZH/exec';
+  var app = document.getElementById('app');
+  /* Đường dẫn hiện tại, ví dụ /kh-ro -> "kh-ro"; truyền vào app để mở đúng màn */
+  var path = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, '').replace(/\.html$/, '');
+  if (path === 'index' || path === '404') path = '';
+  /* ?muc=KH: mở Hướng dẫn và nhảy tới đúng mục (dùng khi bấm nút Hướng dẫn mở tab mới) */
+  var muc = (new URLSearchParams(location.search).get('muc') || '').replace(/[^A-Za-z0-9_]/g, '');
+  var hash = path ? path + (muc ? '~' + muc : '') : '';
+  app.src = EXEC + '?host=' + encodeURIComponent(location.origin) + (hash ? '#' + encodeURIComponent(hash) : '');
+  if (muc) history.replaceState(null, '', location.pathname);
+
+  /* App báo đã chuyển màn -> ghi lịch sử (push: thêm bước để bấm Quay lại được) và đổi tiêu đề tab.
+     Chỉ nhận tin từ máy chủ Google. */
+  window.addEventListener('message', function (e) {
+    var ok = false;
+    try { ok = /\.googleusercontent\.com$/.test(new URL(e.origin).hostname); } catch (x) {}
+    var d = e.data;
+    if (!ok || !d || d.khsx !== 'nav' || typeof d.path !== 'string') return;
+    if (!/^\/[a-z0-9\-]*$/.test(d.path)) return;
+    if (location.pathname !== d.path) {
+      if (d.mode === 'push') history.pushState(null, '', d.path);
+      else history.replaceState(null, '', d.path);
+    }
+    if (typeof d.title === 'string') document.title = d.title.slice(0, 80);
+  });
+
+  /* Người dùng bấm Quay lại / Tiến -> báo app mở màn tương ứng.
+     App nằm trong khung lồng nhiều lớp của Google nên gửi tới mọi khung con; app tự kiểm tra nguồn gửi. */
+  function sendAll(w, msg) {
+    try { w.postMessage(msg, '*'); } catch (x) {}
+    try { for (var i = 0; i < w.length; i++) sendAll(w[i], msg); } catch (x) {}
+  }
+  window.addEventListener('popstate', function () {
+    sendAll(app.contentWindow, { khsx: 'pop', path: location.pathname });
+  });
+</script>
+</body>
+</html>
