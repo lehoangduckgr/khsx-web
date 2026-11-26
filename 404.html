@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KHSX – Điều độ sản xuất | Kangaroo</title>
 <meta name="robots" content="noindex, nofollow">
+<!-- Biểu tượng tab: file favicon.png đặt cùng thư mục trên GitHub; app sẽ thay bằng ảnh cấu hình trong Quản trị nếu có -->
+<link rel="icon" id="fav" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; background: #fff; }
   iframe { border: 0; width: 100%; height: 100%; display: block; }
@@ -38,6 +41,11 @@
       else history.replaceState(null, '', d.path);
     }
     if (typeof d.title === 'string') document.title = d.title.slice(0, 80);
+    /* Biểu tượng tab do admin cấu hình trong app (chỉ nhận link https) */
+    if (typeof d.icon === 'string' && /^https:\/\/[^\s"'<>]+$/.test(d.icon)) {
+      var f = document.getElementById('fav');
+      if (f.getAttribute('href') !== d.icon) f.setAttribute('href', d.icon);
+    }
   });
 
   /* Người dùng bấm Quay lại / Tiến -> báo app mở màn tương ứng.
